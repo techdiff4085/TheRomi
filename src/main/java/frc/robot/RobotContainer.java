@@ -37,7 +37,7 @@ public class RobotContainer {
   private final Arm m_arm = new Arm();
 
   // Assumes a gamepad plugged into channnel 0
-  private final Joystick m_controllerJoystick = new Joystick(0);
+  //private final Joystick m_controllerJoystick = new Joystick(0);
 
 
   //DT - switching to xbox controller. don't have a joystick at home.
@@ -138,6 +138,8 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> m_controller.getRawAxis(2));
+        m_drivetrain, 
+      () -> -m_controller.getRawAxis(1), 
+      () -> m_controller.getRawAxis(4));
   }
 }
