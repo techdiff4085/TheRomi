@@ -10,18 +10,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonomousDistance;
 import frc.robot.commands.AutonomousTime;
-import frc.robot.commands.JoystickArmCommand;
-import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.OnBoardIO;
-import frc.robot.subsystems.OnBoardIO.ChannelMode;
+import edu.wpi.first.wpilibj.romi.OnBoardIO;
+import edu.wpi.first.wpilibj.romi.OnBoardIO.ChannelMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -33,15 +29,9 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Drivetrain m_drivetrain = new Drivetrain();
   private final OnBoardIO m_onboardIO = new OnBoardIO(ChannelMode.INPUT, ChannelMode.INPUT);
-//dt
-  private final Arm m_arm = new Arm();
 
-  // Assumes a gamepad plugged into channnel 0
-  //private final Joystick m_controllerJoystick = new Joystick(0);
-
-
-  //DT - switching to xbox controller. don't have a joystick at home.
-  private final XboxController m_controller = new XboxController(0);
+  // Assumes a gamepad plugged into channel 0
+  private final Joystick m_controller = new Joystick(0);
 
   // Create SmartDashboard chooser for autonomous routines
   private final SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -57,17 +47,8 @@ public class RobotContainer {
   //
   // Your subsystem configuration should take the overlays into account
 
-  //dt
-  //private final DigitalInput gripperOpenIO = new DigitalInput(Constants.ARM_GRIPPER_OPEN);
-  //private final DigitalInput gripperCloseIO = new DigitalInput(Constants.ARM_GRIPPER_CLOSE);
-
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
-//dt
-    //
-
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -82,45 +63,18 @@ public class RobotContainer {
     // Default command is arcade drive. This will run unless another command
     // is scheduled over it.
     m_drivetrain.setDefaultCommand(getArcadeDriveCommand());
-//dt
-    m_arm.setDefaultCommand( new JoystickArmCommand(m_arm, m_controllerJoystick));
 
     // Example of how to use the onboard IO
-    Button onboardButtonA = new Button(m_onboardIO::getButtonAPressed);
+    Trigger onboardButtonA = new Trigger(m_onboardIO::getButtonAPressed);
     onboardButtonA
-        .whenActive(new PrintCommand("Button A Pressed"))
-        .whenInactive(new PrintCommand("Button A Released"));
+        .onTrue(new PrintCommand("Button A Pressed"))
+        .onFalse(new PrintCommand("Button A Released"));
 
     // Setup SmartDashboard options
     m_chooser.setDefaultOption("Auto Routine Distance", new AutonomousDistance(m_drivetrain));
     m_chooser.addOption("Auto Routine Time", new AutonomousTime(m_drivetrain));
     SmartDashboard.putData(m_chooser);
-
-    //dt
-    JoystickButton gripperOpenButton = new JoystickButton(m_controller, Constants.ARM_GRIPPER_OPEN);
-    gripperOpenButton.whileHeld(new PrintCommand (" gripper open was pressed ")); 
-  
-    JoystickButton gripperCloseButton = new JoystickButton(m_controller, Constants.ARM_GRIPPER_CLOSE);
-    gripperCloseButton.whileHeld (new PrintCommand (" gripper close was pressed ")); 
-//dkt testing
-//    JoystickButton gripperCloseButton = new JoystickButton(m_controller, Constants.ARM_GRIPPER_CLOSE);
-//    gripperCloseButton.whileHeld (               ); 
-
-
-    JoystickButton liftUpButton = new JoystickButton(m_controller, Constants.ARM_LIFT_UP);
-    liftUpButton.whileHeld (new PrintCommand (" lift up  was pressed ")); 
-
-    JoystickButton liftDownButton = new JoystickButton(m_controller, Constants.ARM_LIFT_DOWN);
-    liftDownButton.whileHeld (new PrintCommand (" lift down  was pressed ")); 
-
-/* skip for now because the buttons are configured for a joystick controller
-    JoystickButton tiltUpButton = new JoystickButton(m_controller, Constants.ARM_TILT_UP);
-    tiltUpButton.whileHeld (new PrintCommand (" tilt up  was pressed ")); 
-
-    JoystickButton tiltDownButton = new JoystickButton(m_controller, Constants.ARM_TILT_DOWN);
-    tiltDownButton.whileHeld (new PrintCommand (" tilt down  was pressed ")); 
-  */ 
- }
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -138,8 +92,6 @@ public class RobotContainer {
    */
   public Command getArcadeDriveCommand() {
     return new ArcadeDrive(
-        m_drivetrain, 
-      () -> -m_controller.getRawAxis(1), 
-      () -> m_controller.getRawAxis(4));
+        m_drivetrain, () -> -m_controller.getRawAxis(1), () -> -m_controller.getRawAxis(4)); //second axis was 2.
   }
 }
